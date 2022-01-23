@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.GardenIrrigation" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
+        <item name="colorOnPrimary">@color/primaryTextColor</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorSecondaryVariant">@color/secondaryDarkColor</item>
+        <item name="colorOnSecondary">@color/secondaryTextColor</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+        <!-- Use Font Styles -->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.GardenIrrigation.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.GardenIrrigation.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.GardenIrrigation.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.GardenIrrigation.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.GardenIrrigation.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.GardenIrrigation.Headline6</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.GardenIrrigation.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.GardenIrrigation.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.GardenIrrigation.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.GardenIrrigation.Caption</item>
+
+    </style>
+
+    <!-- Define Font Styles -->
+    <style name="TextAppearance.GardenIrrigation.Headline1" parent="TextAppearance.MaterialComponents.Headline1">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">106sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Headline2" parent="TextAppearance.MaterialComponents.Headline2">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">66sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Headline3" parent="TextAppearance.MaterialComponents.Headline3">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">53sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Headline4" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">38sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">27sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Body1" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+    <style name="TextAppearance.GardenIrrigation.Overline" parent="TextAppearance.MaterialComponents.Overline">
+        <item name="fontFamily">@font/karla</item>
+        <item name="android:fontFamily">@font/karla</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+</resources>
