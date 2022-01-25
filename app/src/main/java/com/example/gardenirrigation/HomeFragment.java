@@ -52,7 +52,7 @@ public class HomeFragment extends Fragment {
                 // Navigate to SettingsFragment using Navigation
                 // Safe args
 
-                Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_settingsFragment);
+                Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_setupFragment);
             }
         });
         return v;
