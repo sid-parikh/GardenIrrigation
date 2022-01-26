@@ -1,8 +1,12 @@
 package com.example.gardenirrigation;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import android.text.Editable;
 import android.text.TextUtils;
@@ -10,7 +14,9 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -20,6 +26,7 @@ import com.google.android.material.textfield.TextInputLayout;
  * create an instance of this fragment.
  */
 public class SetupFragment extends Fragment {
+    private TextInputLayout mMoistureLevelInputLayout;
 
     public SetupFragment() {
         // Required empty public constructor
@@ -46,7 +53,40 @@ public class SetupFragment extends Fragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_setup, container, false);
+        View v = inflater.inflate(R.layout.fragment_setup, container, false);
+        // Get submit button
+        Button mSubmitButton = v.findViewById(R.id.setup_button_submit);
+        mSubmitButton.setOnClickListener(this::onSubmitButtonClick);
+
+        // Get text input layout
+        mMoistureLevelInputLayout = v.findViewById(R.id.setup_input_moisture);
+
+        return v;
+    }
+
+    @Override
+    public void onViewCreated(
+            @NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Context c = getContext();
+        // Get the current wifi information
+        if (c != null) {
+            String ssid = WifiUtils.getCurrentSsid(c);
+            EditText e = e.findViewById(R.id.setup_edit_ssid);
+            if (e != null) {
+                e.setText(ssid);
+            }
+        }
+    }
+
+    private void onSubmitButtonClick(View view) {
+        if (checkNumberTextInput(mMoistureLevelInputLayout, "Soil Moisture Level is required.")){
+            // Toast with error message
+            Toast.makeText(getContext(), "Errors were found.", Toast.LENGTH_SHORT).show();
+        } else {
+            // Navigate to the transfer fragment
+            Navigation.findNavController(view).navigate(R.id.action_setupFragment_to_transferFragment);
+        }
     }
 
     /**

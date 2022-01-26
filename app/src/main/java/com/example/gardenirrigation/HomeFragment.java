@@ -51,7 +51,6 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
                 // Navigate to SettingsFragment using Navigation
                 // Safe args
-
                 Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_setupFragment);
             }
         });
