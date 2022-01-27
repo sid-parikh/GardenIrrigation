@@ -17,8 +17,12 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="watering_percentage_title">Soil Moisture</string>
-    <string name="prefs_hint_moisture">Soil Mositure Level</string>
+    <string name="prefs_hint_moisture">Soil Moisture Level</string>
     <string name="error_notnumber">Must be a number</string>
     <string name="error_toolong">Number too long</string>
+    <string name="location_permission_explanation" >We require location permission in order to access your current WiFi network information.\nThis permission is optional, but you will have to manually enter your WiFi SSID if you do not grant it.</string>
+    <string name="location_permission_explanation_title" >Location Permission</string>
+    <string name="proceed" >Grant</string>
+    <string name="cancel" >Cancel</string>
 
 </resources>
