@@ -1,6 +1,5 @@
 package com.example.gardenirrigation;
 
-import android.content.Context;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -8,12 +7,6 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -25,11 +18,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -39,14 +33,20 @@ import com.google.android.material.textfield.TextInputLayout;
  * create an instance of this fragment.
  */
 public class SetupFragment extends Fragment {
+    private static final String[] PERMISSIONS = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+
+
     private TextInputLayout mMoistureLevelInputLayout;
 
     private Context mContext;
     private EditText mSsidEditText;
-    private final ActivityResultLauncher<String> requestLocationPermissonLauncher =
+    private final ActivityResultLauncher<String[]> requestLocationPermissonsLauncher =
             registerForActivityResult(
-                    new RequestPermission(), (isGranted) -> {
-                        if (isGranted) {
+                    new RequestMultiplePermissions(), (isGranted) -> {
+                        if (!isGranted.containsValue(false)) {
                             fillSsid(mContext);
                         }
                     }
@@ -80,18 +80,21 @@ public class SetupFragment extends Fragment {
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         String ssid = wifiInfo.getSSID();
         if (ssid != null && !TextUtils.isEmpty(ssid) && !ssid.equalsIgnoreCase("<unknown ssid>")) {
-            mSsidEditText.setText(ssid);
+            mSsidEditText.setText(ssid.substring(1, ssid.length() - 1));
         }
     }
 
     private void checkLocPermsAndFillSsid(@NonNull Context context) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED) {
+            PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fillSsid(context);
-        } else if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                   shouldShowRequestPermissionRationale(
+                           Manifest.permission.ACCESS_COARSE_LOCATION)) {
             showLocPermExplanation();
         } else {
-            requestLocationPermissonLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+            requestLocationPermissonsLauncher.launch(PERMISSIONS);
         }
     }
 
@@ -101,7 +104,7 @@ public class SetupFragment extends Fragment {
         builder.setMessage(R.string.location_permission_explanation);
         builder.setTitle(R.string.location_permission_explanation_title);
         builder.setPositiveButton(R.string.proceed, (dialog, which) -> {
-            requestLocationPermissonLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+            requestLocationPermissonsLauncher.launch(PERMISSIONS);
         });
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
             dialog.dismiss();
@@ -133,32 +136,16 @@ public class SetupFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onViewCreated(
-            @NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Context c = getContext();
-        // Get the current wifi information
-        if (c != null) {
-            String ssid = WifiUtils.getCurrentSsid(c);
-            EditText e = e.findViewById(R.id.setup_edit_ssid);
-            if (e != null) {
-                e.setText(ssid);
-            }
-        }
-    }
-
     private void onSubmitButtonClick(View view) {
-        if (checkNumberTextInput(mMoistureLevelInputLayout, "Soil Moisture Level is required.")){
+        if (checkNumberTextInput(mMoistureLevelInputLayout, "Soil Moisture Level is required.")) {
             // Toast with error message
             Toast.makeText(getContext(), "Errors were found.", Toast.LENGTH_SHORT).show();
         } else {
             // Navigate to the transfer fragment
-            Navigation.findNavController(view).navigate(R.id.action_setupFragment_to_transferFragment);
+            Navigation.findNavController(view)
+                      .navigate(R.id.action_setupFragment_to_transferFragment);
         }
-        View v = inflater.inflate(R.layout.fragment_setup, container, false);
-        mSsidEditText = v.findViewById(R.id.setup_edit_ssid);
-        return v;
+
     }
 
     /**
