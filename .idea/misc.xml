@@ -3,14 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/activity_main.xml" value="0.49964513839602553" />
-        <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/fragment_home.xml" value="0.1671875" />
-        <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/fragment_prefs_dialog.xml" value="0.358695652173913" />
-        <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/fragment_setup.xml" value="0.18802083333333333" />
-        <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/percentage_preference.xml" value="0.15208333333333332" />
-        <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/xml/root_preferences.xml" value="0.358695652173913" />
         <entry key="..\:/Users/sidparikh/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/font/outfit.xml" value="0.2171875" />
         <entry key="..\:/Users/sidparikh/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/activity_main.xml" value="0.35733695652173914" />
+        <entry key="..\:/Users/sidparikh/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/fragment_home.xml" value="0.25677083333333334" />
+        <entry key="..\:/Users/sidparikh/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/fragment_setup.xml" value="0.15254237288135594" />
+        <entry key="..\:/Users/sidparikh/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/numerical_preference.xml" value="0.2557291666666667" />
+        <entry key="..\:/Users/sidparikh/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/xml/root_preferences.xml" value="0.25677083333333334" />
       </map>
     </option>
   </component>
