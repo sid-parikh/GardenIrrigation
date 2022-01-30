@@ -20,8 +20,10 @@
     <string name="prefs_hint_moisture">Soil Moisture Level</string>
     <string name="error_notnumber">Must be a number</string>
     <string name="error_toolong">Number too long</string>
-    <string name="location_permission_explanation" >We require location permission in order to access your current WiFi network information.\nThis permission is optional, but you will have to manually enter your WiFi SSID if you do not grant it.</string>
+    <string name="location_permission_explanation" >We require location permission in order to access your current WiFi network information and to connect to Bluetooth. \n We in no way collect your location. This permission is required. </string>
     <string name="location_permission_explanation_title" >Location Permission</string>
+    <string name="bluetooth_permission_explanation" >We require Bluetooth permission in order to connect to the product and send it the user preferences. \n This permission is required.</string>
+    <string name="bluetooth_permission_explanation_title" >Bluetooth Permission</string>
     <string name="proceed" >Grant</string>
     <string name="cancel" >Cancel</string>
     <string name="setup_ssid_hint">WiFi SSID</string>

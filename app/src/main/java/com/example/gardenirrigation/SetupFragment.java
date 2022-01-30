@@ -18,9 +18,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -34,8 +36,12 @@ import com.google.android.material.textfield.TextInputLayout;
  */
 public class SetupFragment extends Fragment {
     private static final String[] PERMISSIONS = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT
     };
 
 
@@ -43,11 +49,19 @@ public class SetupFragment extends Fragment {
 
     private Context mContext;
     private EditText mSsidEditText;
-    private final ActivityResultLauncher<String[]> requestLocationPermissonsLauncher =
+    private final ActivityResultLauncher<String[]> requestLocationPermissionsLauncher =
             registerForActivityResult(
                     new RequestMultiplePermissions(), (isGranted) -> {
                         if (!isGranted.containsValue(false)) {
                             fillSsid(mContext);
+                        }
+                    }
+            );
+    private final ActivityResultLauncher<String[]> requestBluetoothPermissionsLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestMultiplePermissions(), (isGranted) -> {
+                        if (!isGranted.containsValue(false)) {
+                            scan(mContext);
                         }
                     }
             );
@@ -84,6 +98,44 @@ public class SetupFragment extends Fragment {
         }
     }
 
+    private void checkPerms(@NonNull Context context){
+        boolean areAllPermissionsGranted = true;
+        for (int j = 0; j < Integer.parseInt(String.valueOf(PERMISSIONS.length)); j++) {
+            if (ActivityCompat.checkSelfPermission(context, PERMISSIONS[j]) !=
+                PackageManager.PERMISSION_GRANTED) {
+                areAllPermissionsGranted = false;
+            }
+        }
+
+        if (!areAllPermissionsGranted) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                shouldShowRequestPermissionRationale(
+                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                showLocPermExplanation();
+            } else {
+                requestLocationPermissionsLauncher.launch(new String[]
+                        {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION});
+            }
+            if (shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH)
+                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_ADMIN)
+                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_SCAN)
+                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_CONNECT)) {
+                showBtPermExplanation();
+            } else {
+                requestBluetoothPermissionsLauncher.launch(new String[] {Manifest.permission.BLUETOOTH,
+                                                                         Manifest.permission.BLUETOOTH_ADMIN,
+                                                                         Manifest.permission.BLUETOOTH_SCAN,
+                                                                         Manifest.permission.BLUETOOTH_CONNECT});
+            }
+        } else {
+            fillSsid(context);
+        }
+    }
+
+    private void scan(Context context){
+
+    }
+
     private void checkLocPermsAndFillSsid(@NonNull Context context) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context,
@@ -94,7 +146,7 @@ public class SetupFragment extends Fragment {
                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
             showLocPermExplanation();
         } else {
-            requestLocationPermissonsLauncher.launch(PERMISSIONS);
+            requestLocationPermissionsLauncher.launch(PERMISSIONS);
         }
     }
 
@@ -104,7 +156,21 @@ public class SetupFragment extends Fragment {
         builder.setMessage(R.string.location_permission_explanation);
         builder.setTitle(R.string.location_permission_explanation_title);
         builder.setPositiveButton(R.string.proceed, (dialog, which) -> {
-            requestLocationPermissonsLauncher.launch(PERMISSIONS);
+            requestLocationPermissionsLauncher.launch(PERMISSIONS);
+        });
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            dialog.dismiss();
+        });
+        builder.create().show();
+    }
+
+    private void showBtPermExplanation() {
+        // Build an alert dialog to explain why we need Bluetooth permission
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.bluetooth_permission_explanation);
+        builder.setTitle(R.string.bluetooth_permission_explanation_title);
+        builder.setPositiveButton(R.string.proceed, (dialog, which) -> {
+            requestBluetoothPermissionsLauncher.launch(PERMISSIONS);
         });
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
             dialog.dismiss();
