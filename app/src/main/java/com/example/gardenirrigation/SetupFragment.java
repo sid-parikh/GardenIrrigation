@@ -1,13 +1,12 @@
 package com.example.gardenirrigation;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -18,6 +17,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
+
 import com.google.android.material.textfield.TextInputLayout;
 
 /**
@@ -26,7 +35,36 @@ import com.google.android.material.textfield.TextInputLayout;
  * create an instance of this fragment.
  */
 public class SetupFragment extends Fragment {
+    private static final String[] PERMISSIONS = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.BLUETOOTH_CONNECT
+    };
+
+
     private TextInputLayout mMoistureLevelInputLayout;
+
+    private Context mContext;
+    private EditText mSsidEditText;
+    private final ActivityResultLauncher<String[]> requestLocationPermissionsLauncher =
+            registerForActivityResult(
+                    new RequestMultiplePermissions(), (isGranted) -> {
+                        if (!isGranted.containsValue(false)) {
+                            fillSsid(mContext);
+                        }
+                    }
+            );
+    private final ActivityResultLauncher<String[]> requestBluetoothPermissionsLauncher =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestMultiplePermissions(), (isGranted) -> {
+                        if (!isGranted.containsValue(false)) {
+                            scan(mContext);
+                        }
+                    }
+            );
 
     public SetupFragment() {
         // Required empty public constructor
@@ -44,8 +82,107 @@ public class SetupFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    private void fillSsid(@NonNull Context context) {
+        // Get current WiFi info
+        WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(
+                Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        String ssid = wifiInfo.getSSID();
+        if (ssid != null && !TextUtils.isEmpty(ssid) && !ssid.equalsIgnoreCase("<unknown ssid>")) {
+            mSsidEditText.setText(ssid.substring(1, ssid.length() - 1));
+        }
+    }
+
+    private void checkPerms(@NonNull Context context){
+        boolean areAllPermissionsGranted = true;
+        for (int j = 0; j < Integer.parseInt(String.valueOf(PERMISSIONS.length)); j++) {
+            if (ActivityCompat.checkSelfPermission(context, PERMISSIONS[j]) !=
+                PackageManager.PERMISSION_GRANTED) {
+                areAllPermissionsGranted = false;
+            }
+        }
+
+        if (!areAllPermissionsGranted) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                shouldShowRequestPermissionRationale(
+                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                showLocPermExplanation();
+            } else {
+                requestLocationPermissionsLauncher.launch(new String[]
+                        {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION});
+            }
+            if (shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH)
+                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_ADMIN)
+                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_SCAN)
+                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_CONNECT)) {
+                showBtPermExplanation();
+            } else {
+                requestBluetoothPermissionsLauncher.launch(new String[] {Manifest.permission.BLUETOOTH,
+                                                                         Manifest.permission.BLUETOOTH_ADMIN,
+                                                                         Manifest.permission.BLUETOOTH_SCAN,
+                                                                         Manifest.permission.BLUETOOTH_CONNECT});
+            }
+        } else {
+            fillSsid(context);
+        }
+    }
+
+    private void scan(Context context){
+
+    }
+
+    private void checkLocPermsAndFillSsid(@NonNull Context context) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fillSsid(context);
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
+                   shouldShowRequestPermissionRationale(
+                           Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            showLocPermExplanation();
+        } else {
+            requestLocationPermissionsLauncher.launch(PERMISSIONS);
+        }
+    }
+
+    private void showLocPermExplanation() {
+        // Build an alert dialog to explain why we need location permission
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.location_permission_explanation);
+        builder.setTitle(R.string.location_permission_explanation_title);
+        builder.setPositiveButton(R.string.proceed, (dialog, which) -> {
+            requestLocationPermissionsLauncher.launch(PERMISSIONS);
+        });
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            dialog.dismiss();
+        });
+        builder.create().show();
+    }
+
+    private void showBtPermExplanation() {
+        // Build an alert dialog to explain why we need Bluetooth permission
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.bluetooth_permission_explanation);
+        builder.setTitle(R.string.bluetooth_permission_explanation_title);
+        builder.setPositiveButton(R.string.proceed, (dialog, which) -> {
+            requestBluetoothPermissionsLauncher.launch(PERMISSIONS);
+        });
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
+            dialog.dismiss();
+        });
+        builder.create().show();
+    }
+
+    @Override
+    public void onViewCreated(
+            @NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        checkLocPermsAndFillSsid(mContext);
     }
 
     @Override
@@ -57,6 +194,7 @@ public class SetupFragment extends Fragment {
         // Get submit button
         Button mSubmitButton = v.findViewById(R.id.setup_button_submit);
         mSubmitButton.setOnClickListener(this::onSubmitButtonClick);
+        mSsidEditText = v.findViewById(R.id.setup_edit_ssid);
 
         // Get text input layout
         mMoistureLevelInputLayout = v.findViewById(R.id.setup_input_moisture);
@@ -64,29 +202,16 @@ public class SetupFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onViewCreated(
-            @NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Context c = getContext();
-        // Get the current wifi information
-        if (c != null) {
-            String ssid = WifiUtils.getCurrentSsid(c);
-            EditText e = e.findViewById(R.id.setup_edit_ssid);
-            if (e != null) {
-                e.setText(ssid);
-            }
-        }
-    }
-
     private void onSubmitButtonClick(View view) {
-        if (checkNumberTextInput(mMoistureLevelInputLayout, "Soil Moisture Level is required.")){
+        if (checkNumberTextInput(mMoistureLevelInputLayout, "Soil Moisture Level is required.")) {
             // Toast with error message
             Toast.makeText(getContext(), "Errors were found.", Toast.LENGTH_SHORT).show();
         } else {
             // Navigate to the transfer fragment
-            Navigation.findNavController(view).navigate(R.id.action_setupFragment_to_transferFragment);
+            Navigation.findNavController(view)
+                      .navigate(R.id.action_setupFragment_to_transferFragment);
         }
+
     }
 
     /**
@@ -118,7 +243,8 @@ public class SetupFragment extends Fragment {
         } else if (!TextUtils.isDigitsOnly(input)) {
             isError = true;
             textInputLayout.setError(getString(R.string.error_notnumber));
-        } else if (textInputLayout.getCounterMaxLength() > 0 && input.length() > textInputLayout.getCounterMaxLength()) {
+        } else if (textInputLayout.getCounterMaxLength() > 0 &&
+                   input.length() > textInputLayout.getCounterMaxLength()) {
             isError = true;
             textInputLayout.setError(getString(R.string.error_toolong));
         }
@@ -127,15 +253,17 @@ public class SetupFragment extends Fragment {
         if (isError) {
             editText.addTextChangedListener(new SmallerTextWatcher(textInputLayout, editText) {
                 @Override
-                public void afterTextChanged(String input, TextInputLayout layout,
-                                             EditText editText) {
+                public void afterTextChanged(
+                        String input, TextInputLayout layout,
+                        EditText editText) {
                     /* Text is not errored if:
                        1. Not Empty
                        2. Digits Only
                        3. Either there is no max or length is <= max
                      */
                     if ((!TextUtils.isEmpty(input) && TextUtils.isDigitsOnly(
-                            input)) && (layout.getCounterMaxLength() <= 0 || input.length() <= layout.getCounterMaxLength())) {
+                            input)) && (layout.getCounterMaxLength() <= 0 ||
+                                        input.length() <= layout.getCounterMaxLength())) {
                         layout.setError(null);
                         editText.removeTextChangedListener(this);
                     }
@@ -175,7 +303,8 @@ public class SetupFragment extends Fragment {
             afterTextChanged(s.toString(), mTextInputLayout, mEditText);
         }
 
-        public abstract void afterTextChanged(String input, TextInputLayout layout,
-                                              EditText editText);
+        public abstract void afterTextChanged(
+                String input, TextInputLayout layout,
+                EditText editText);
     }
 }
