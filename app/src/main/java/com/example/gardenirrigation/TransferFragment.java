@@ -1,12 +1,20 @@
 package com.example.gardenirrigation;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,14 +23,35 @@ import android.view.ViewGroup;
  */
 public class TransferFragment extends Fragment {
 
+    private static final String[] PERMISSIONS_BLUETOOTH =
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ?
+            new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_ADVERTISE
+            } : new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    };
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM_MOISTURE = "param1";
+    private static final String ARG_PARAM_SSID = "param2";
+    private static final String ARG_PARAM_PASSWORD = "param3";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private final ActivityResultLauncher<String[]> requestBluetoothPermissionsLauncher =
+            registerForActivityResult(
+                    new RequestMultiplePermissions(), (isGranted) -> {
+                        if (!isGranted.containsValue(false)) {
+                            scan(mContext);
+                        }
+                    }
+            );
 
     public TransferFragment() {
         // Required empty public constructor
@@ -44,6 +73,58 @@ public class TransferFragment extends Fragment {
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    /**
+     * Checks if the app has permission to access Bluetooth. If not, checks if a rationale should be
+     * displayed. If so, displays a dialog to the user and then requests the permission. Then, if the
+     * user has granted the permission, runs {@link #scan(Context)}.
+     *
+     * @param context
+     */
+    private void checkBluetoothPermissionsAndScan(@NonNull Context context) {
+        // Ensure all permissions are granted
+        boolean areAllPermissionsGranted = true;
+        for (String permission : PERMISSIONS_BLUETOOTH) {
+            areAllPermissionsGranted &= ContextCompat.checkSelfPermission(context, permission) ==
+                                        PackageManager.PERMISSION_GRANTED;
+        }
+
+        if (areAllPermissionsGranted) {
+            scan(context);
+        } else {
+            // Check if any rationales are needed
+            boolean shouldShowRationale = false;
+            for (String permission : PERMISSIONS_BLUETOOTH) {
+                shouldShowRationale |= shouldShowRequestPermissionRationale(permission);
+            }
+
+            // Show the rationale if needed
+            if (shouldShowRationale) {
+                showBtPermExplanation();
+            } else {
+                requestBluetoothPermissionsLauncher.launch(PERMISSIONS_BLUETOOTH);
+            }
+        }
+    }
+
+    private void showBtPermExplanation() {
+        // Build an alert dialog to explain why we need Bluetooth permission
+        // If the user grants permission, request them from the system
+        new AlertDialog.Builder(getActivity())
+                .setMessage(R.string.bluetooth_permission_explanation)
+                .setTitle(R.string.bluetooth_permission_explanation_title)
+                .setPositiveButton(R.string.proceed,
+                        (dialog, which) -> {
+                            requestBluetoothPermissionsLauncher.launch(
+                                    PERMISSIONS_BLUETOOTH);
+                        })
+                .setNegativeButton(R.string.cancel,
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                .create()
+                .show();
     }
 
     @Override
