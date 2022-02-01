@@ -36,11 +36,5 @@
             android:name="com.example.gardenirrigation.TransferFragment"
             tools:layout="@layout/fragment_transfer" />
 
-            android:label="fragment_home"
-            tools:layout="@layout/fragment_home" >
-        <action
-                android:id="@+id/action_homeFragment_to_settingsFragment"
-                app:destination="@id/settingsFragment" />
-    </fragment>
 
 </navigation>
