@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.GardenIrrigation" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Base.Theme.GardenIrrigation" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryVariant">@color/primaryDarkColor</item>
@@ -11,7 +11,10 @@
         <item name="colorOnSecondary">@color/secondaryTextColor</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+        <!-- Use Shape Styles -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.GardenIrrigation.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.GardenIrrigation.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.GardenIrrigation.LargeComponent</item>
         <!-- Use Font Styles -->
         <item name="textAppearanceHeadline1">@style/TextAppearance.GardenIrrigation.Headline1</item>
         <item name="textAppearanceHeadline2">@style/TextAppearance.GardenIrrigation.Headline2</item>
@@ -24,6 +27,20 @@
         <item name="textAppearanceButton">@style/TextAppearance.GardenIrrigation.Button</item>
         <item name="textAppearanceCaption">@style/TextAppearance.GardenIrrigation.Caption</item>
 
+    </style>
+
+    <!-- Define Shape Styles -->
+    <style name="ShapeAppearance.GardenIrrigation.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">6dp</item>
+    </style>
+    <style name="ShapeAppearance.GardenIrrigation.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="ShapeAppearance.GardenIrrigation.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">24dp</item>
     </style>
 
     <!-- Define Font Styles -->
