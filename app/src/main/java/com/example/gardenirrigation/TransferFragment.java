@@ -1,5 +1,8 @@
 package com.example.gardenirrigation;
 
+import static com.welie.blessed.WriteType.WITHOUT_RESPONSE;
+import static com.welie.blessed.WriteType.WITH_RESPONSE;
+
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
@@ -32,14 +35,6 @@ public class TransferFragment extends Fragment {
 
     UUID serviceUuid = UUID.fromString("91a40d83-3af0-4cb0-a959-97c0d4f74aeb");
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private final BluetoothCentralManagerCallback bluetoothCentralManagerCallback = new BluetoothCentralManagerCallback() {
         @Override
@@ -56,7 +51,15 @@ public class TransferFragment extends Fragment {
                 @NonNull byte[] value,
                 @NonNull BluetoothGattCharacteristic characteristic, @NonNull GattStatus status) {
             super.onCharacteristicUpdate(peripheral, value, characteristic, status);
-            // Data transferred to this device can be accessed from here.
+            // Callback for read operations. Results can be accessed here.
+        }
+        @Override
+        public void onCharacteristicWrite(
+                @NonNull BluetoothPeripheral peripheral,
+                @NonNull byte[] value,
+                @NonNull BluetoothGattCharacteristic characteristic, @NonNull GattStatus status) {
+            super.onCharacteristicWrite(peripheral, value, characteristic, status);
+            // Callback for write operations.
         }
 
         @Override
@@ -66,9 +69,9 @@ public class TransferFragment extends Fragment {
 
             BluetoothGattCharacteristic dataCharacteristic = scoutingService.getCharacteristics().get(0);
 
-            peripheral.readCharacteristic(dataCharacteristic);
+            byte[] dataToBeWritten = {0};
 
-
+            peripheral.writeCharacteristic(dataCharacteristic, dataToBeWritten, WITHOUT_RESPONSE);
         }
     };
 
@@ -76,22 +79,8 @@ public class TransferFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TransferFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static TransferFragment newInstance(String param1, String param2) {
-        TransferFragment fragment = new TransferFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static TransferFragment newInstance() {
+        return new TransferFragment();
     }
 
     BluetoothCentralManager central = new BluetoothCentralManager(mContext.getApplicationContext(),
@@ -101,10 +90,6 @@ public class TransferFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
