@@ -18,16 +18,15 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.textfield.TextInputLayout;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,33 +34,37 @@ import com.google.android.material.textfield.TextInputLayout;
  * create an instance of this fragment.
  */
 public class SetupFragment extends Fragment {
-    private static final String[] PERMISSIONS = {
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.BLUETOOTH,
-            Manifest.permission.BLUETOOTH_ADMIN,
-            Manifest.permission.BLUETOOTH_SCAN,
-            Manifest.permission.BLUETOOTH_CONNECT
-    };
 
-
+    //    private static final String[] PERMISSIONS = {
+//            Manifest.permission.ACCESS_COARSE_LOCATION,
+//            Manifest.permission.ACCESS_FINE_LOCATION,
+//            Manifest.permission.BLUETOOTH,
+//            Manifest.permission.BLUETOOTH_ADMIN,
+//            Manifest.permission.BLUETOOTH_SCAN,
+//            Manifest.permission.BLUETOOTH_CONNECT
+//    };
+    private static final String PERMISSION_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    /**
+     * The TextInputLayout for the Moisture Level
+     */
     private TextInputLayout mMoistureLevelInputLayout;
-
+    /**
+     * Saves context for later use
+     */
     private Context mContext;
+    /**
+     * The EditText for the WiFi SSID
+     */
     private EditText mSsidEditText;
-    private final ActivityResultLauncher<String[]> requestLocationPermissionsLauncher =
+
+    /**
+     * Requests the location permission and then fills the SSID.
+     */
+    private final ActivityResultLauncher<String> requestLocationPermissionsLauncher =
             registerForActivityResult(
-                    new RequestMultiplePermissions(), (isGranted) -> {
-                        if (!isGranted.containsValue(false)) {
+                    new RequestPermission(), (isGranted) -> {
+                        if (!isGranted) {
                             fillSsid(mContext);
-                        }
-                    }
-            );
-    private final ActivityResultLauncher<String[]> requestBluetoothPermissionsLauncher =
-            registerForActivityResult(
-                    new ActivityResultContracts.RequestMultiplePermissions(), (isGranted) -> {
-                        if (!isGranted.containsValue(false)) {
-                            scan(mContext);
                         }
                     }
             );
@@ -70,13 +73,12 @@ public class SetupFragment extends Fragment {
         // Required empty public constructor
     }
 
+
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Returns a new instance of this fragment.
      *
      * @return A new instance of fragment SetupFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static SetupFragment newInstance() {
         return new SetupFragment();
     }
@@ -84,98 +86,66 @@ public class SetupFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        // Save context for later use
         mContext = context;
     }
 
+    /**
+     * Fills the SSID EditText with the SSID of the current WiFi connection.
+     * Note: This requires the ACCESS_FINE_LOCATION permission.
+     *
+     * @param context The context to use.
+     */
     private void fillSsid(@NonNull Context context) {
         // Get current WiFi info
         WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(
                 Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        // Get SSID
         String ssid = wifiInfo.getSSID();
         if (ssid != null && !TextUtils.isEmpty(ssid) && !ssid.equalsIgnoreCase("<unknown ssid>")) {
             mSsidEditText.setText(ssid.substring(1, ssid.length() - 1));
         }
     }
 
-    private void checkPerms(@NonNull Context context){
-        boolean areAllPermissionsGranted = true;
-        for (int j = 0; j < Integer.parseInt(String.valueOf(PERMISSIONS.length)); j++) {
-            if (ActivityCompat.checkSelfPermission(context, PERMISSIONS[j]) !=
-                PackageManager.PERMISSION_GRANTED) {
-                areAllPermissionsGranted = false;
-            }
-        }
-
-        if (!areAllPermissionsGranted) {
-            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                shouldShowRequestPermissionRationale(
-                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                showLocPermExplanation();
-            } else {
-                requestLocationPermissionsLauncher.launch(new String[]
-                        {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION});
-            }
-            if (shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH)
-                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_ADMIN)
-                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_SCAN)
-                || shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_CONNECT)) {
-                showBtPermExplanation();
-            } else {
-                requestBluetoothPermissionsLauncher.launch(new String[] {Manifest.permission.BLUETOOTH,
-                                                                         Manifest.permission.BLUETOOTH_ADMIN,
-                                                                         Manifest.permission.BLUETOOTH_SCAN,
-                                                                         Manifest.permission.BLUETOOTH_CONNECT});
-            }
-        } else {
-            fillSsid(context);
-        }
-    }
-
-    private void scan(Context context){
-
-    }
-
+    /**
+     * Checks if the user has granted the location permission, and if not, checks if a rationale is
+     * needed. If so, shows the rationale. If not, requests the permission.
+     * Then, calls {@link #fillSsid(Context)} to fill the SSID EditText with the SSID of the current
+     *
+     * @param context The context to use.
+     */
     private void checkLocPermsAndFillSsid(@NonNull Context context) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-            PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, PERMISSION_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED) {
             fillSsid(context);
-        } else if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) ||
-                   shouldShowRequestPermissionRationale(
-                           Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        } else if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
             showLocPermExplanation();
         } else {
-            requestLocationPermissionsLauncher.launch(PERMISSIONS);
+            requestLocationPermissionsLauncher.launch(PERMISSION_LOCATION);
         }
     }
 
+    /**
+     * Shows a rationale for requesting the location permission.
+     */
     private void showLocPermExplanation() {
         // Build an alert dialog to explain why we need location permission
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.location_permission_explanation);
-        builder.setTitle(R.string.location_permission_explanation_title);
-        builder.setPositiveButton(R.string.proceed, (dialog, which) -> {
-            requestLocationPermissionsLauncher.launch(PERMISSIONS);
-        });
-        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
-            dialog.dismiss();
-        });
-        builder.create().show();
-    }
-
-    private void showBtPermExplanation() {
-        // Build an alert dialog to explain why we need Bluetooth permission
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.bluetooth_permission_explanation);
-        builder.setTitle(R.string.bluetooth_permission_explanation_title);
-        builder.setPositiveButton(R.string.proceed, (dialog, which) -> {
-            requestBluetoothPermissionsLauncher.launch(PERMISSIONS);
-        });
-        builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
-            dialog.dismiss();
-        });
-        builder.create().show();
+        new AlertDialog.Builder(getActivity())
+                .setMessage(R.string.location_permission_explanation)
+                .setTitle(
+                        R.string.location_permission_explanation_title)
+                .setPositiveButton(R.string.proceed,
+                        (dialog, which) -> {
+                            requestLocationPermissionsLauncher.launch(
+                                    PERMISSION_LOCATION);
+                        })
+                .setNegativeButton(R.string.cancel,
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                .create()
+                .show();
     }
 
     @Override
@@ -189,19 +159,28 @@ public class SetupFragment extends Fragment {
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_setup, container, false);
+
         // Get submit button
         Button mSubmitButton = v.findViewById(R.id.setup_button_submit);
         mSubmitButton.setOnClickListener(this::onSubmitButtonClick);
+
+        // Get SSID text field
         mSsidEditText = v.findViewById(R.id.setup_edit_ssid);
 
-        // Get text input layout
+        // Get moisture text input layout
         mMoistureLevelInputLayout = v.findViewById(R.id.setup_input_moisture);
 
         return v;
     }
 
+    /**
+     * When the submit button is clicked, checks for valid input and then sends the data to  {@link TransferFragment}.
+     *
+     * @param view The view that was clicked.
+     */
     private void onSubmitButtonClick(View view) {
         if (checkNumberTextInput(mMoistureLevelInputLayout, "Soil Moisture Level is required.")) {
             // Toast with error message
@@ -211,7 +190,6 @@ public class SetupFragment extends Fragment {
             Navigation.findNavController(view)
                       .navigate(R.id.action_setupFragment_to_transferFragment);
         }
-
     }
 
     /**
