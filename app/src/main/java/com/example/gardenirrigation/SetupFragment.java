@@ -1,10 +1,15 @@
 package com.example.gardenirrigation;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +25,8 @@ import androidx.navigation.Navigation;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
+
+import com.welie.blessed.*;
 
 
 /**
@@ -37,6 +44,7 @@ public class SetupFragment extends PermissionsFragment {
      * Saves context for later use
      */
     private Context mContext;
+
 
     /**
      * The TextInputLayout for the WiFi SSID

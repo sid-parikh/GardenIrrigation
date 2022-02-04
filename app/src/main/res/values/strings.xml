@@ -35,5 +35,6 @@
     <string name="error_ssid_required">WiFi SSID is required</string>
     <string name="error_ssid_toolong">Wifi SSID is too long</string>
 
+    <string name="scan">Scan</string>
 
 </resources>
