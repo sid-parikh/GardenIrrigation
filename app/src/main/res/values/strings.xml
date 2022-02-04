@@ -29,6 +29,11 @@
     <string name="proceed" >Grant</string>
     <string name="cancel" >Cancel</string>
     <string name="setup_ssid_hint">WiFi SSID</string>
+    <string name="error_moisture_required">Moisture Level is required.</string>
+    <string name="error_moisture_toolong">Moisture Level must be a percent.</string>
+    <string name="error_moisture_notnumber">Moisture Level must be a percent.</string>
+    <string name="error_ssid_required">WiFi SSID is required</string>
+    <string name="error_ssid_toolong">Wifi SSID is too long</string>
 
 
 </resources>
