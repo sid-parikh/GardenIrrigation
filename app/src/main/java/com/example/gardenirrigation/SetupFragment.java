@@ -2,11 +2,14 @@ package com.example.gardenirrigation;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -26,6 +29,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.textfield.TextInputLayout;
+
+import com.welie.blessed.*;
 
 
 /**
@@ -56,6 +61,7 @@ public class SetupFragment extends Fragment {
      * The EditText for the WiFi SSID
      */
     private EditText mSsidEditText;
+
 
     /**
      * Requests the location permission and then fills the SSID.
@@ -153,6 +159,11 @@ public class SetupFragment extends Fragment {
             @NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         checkLocPermsAndFillSsid(mContext);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override

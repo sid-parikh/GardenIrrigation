@@ -109,7 +109,7 @@ public class TransferFragment extends Fragment {
 
             BluetoothGattCharacteristic dataCharacteristic = scoutingService.getCharacteristics().get(0);
 
-            byte[] dataToBeWritten = {0};
+            byte[] dataToBeWritten = (mParamMoisture + "!!!" + mParamPassword + "!!!" + mParamSsid).getBytes();
 
             peripheral.writeCharacteristic(dataCharacteristic, dataToBeWritten, WITHOUT_RESPONSE);
         }
