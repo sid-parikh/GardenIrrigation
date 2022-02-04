@@ -68,11 +68,13 @@ public class TransferFragment extends Fragment {
     private String mParamSsid;
     private String mParamPassword;
 
+    BluetoothCentralManager central;
+
     private final ActivityResultLauncher<String[]> requestBluetoothPermissionsLauncher =
             registerForActivityResult(
                     new RequestMultiplePermissions(), (isGranted) -> {
                         if (!isGranted.containsValue(false)) {
-                            scan(mContext);
+                            central.scanForPeripheralsWithServices(new UUID[] {serviceUuid});
                         }
                     }
             );
@@ -92,6 +94,7 @@ public class TransferFragment extends Fragment {
                 @NonNull BluetoothGattCharacteristic characteristic, @NonNull GattStatus status) {
             super.onCharacteristicUpdate(peripheral, value, characteristic, status);
             // Callback for read operations. Results can be accessed here.
+            String[] results = value.toString().split("!!!");
         }
         @Override
         public void onCharacteristicWrite(
@@ -139,14 +142,13 @@ public class TransferFragment extends Fragment {
         return fragment;
     }
 
-    BluetoothCentralManager central = new BluetoothCentralManager(mContext.getApplicationContext(),
-            bluetoothCentralManagerCallback, new Handler(Looper.getMainLooper()));
+
 
 
     /**
      * Checks if the app has permission to access Bluetooth. If not, checks if a rationale should be
      * displayed. If so, displays a dialog to the user and then requests the permission. Then, if the
-     * user has granted the permission, runs {@link #scan(Context)}.
+     * user has granted the permission, runs a scan for peripherals.
      *
      * @param context
      */
@@ -159,7 +161,7 @@ public class TransferFragment extends Fragment {
         }
 
         if (areAllPermissionsGranted) {
-            scan(context);
+            central.scanForPeripheralsWithServices(new UUID[] {serviceUuid});
         } else {
             // Check if any rationales are needed
             boolean shouldShowRationale = false;
@@ -203,6 +205,8 @@ public class TransferFragment extends Fragment {
             mParamSsid = getArguments().getString(ARG_PARAM_SSID);
             mParamPassword = getArguments().getString(ARG_PARAM_PASSWORD);
         }
+        central = new BluetoothCentralManager(mContext.getApplicationContext(),
+                bluetoothCentralManagerCallback, new Handler(Looper.getMainLooper()));
     }
 
     @Override

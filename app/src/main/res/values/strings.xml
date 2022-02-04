@@ -29,6 +29,6 @@
     <string name="proceed" >Grant</string>
     <string name="cancel" >Cancel</string>
     <string name="setup_ssid_hint">WiFi SSID</string>
-
+    <string name="scan">Scan</string>
 
 </resources>
