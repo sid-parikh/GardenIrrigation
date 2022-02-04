@@ -1,33 +1,23 @@
 package com.example.gardenirrigation;
 
 import static com.welie.blessed.WriteType.WITHOUT_RESPONSE;
-import static com.welie.blessed.WriteType.WITH_RESPONSE;
 
 import android.Manifest;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
-import java.util.UUID;
 
 import com.welie.blessed.BluetoothCentralManager;
 import com.welie.blessed.BluetoothCentralManagerCallback;
@@ -35,6 +25,7 @@ import com.welie.blessed.BluetoothPeripheral;
 import com.welie.blessed.BluetoothPeripheralCallback;
 import com.welie.blessed.GattStatus;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 
@@ -43,7 +34,7 @@ import java.util.UUID;
  * Use the {@link TransferFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TransferFragment extends PermissionsFragment {
+public class TransferFragment extends PermissionsFragment implements View.OnClickListener {
 
     // Argument keys
     private static final String ARG_PARAM_MOISTURE =
@@ -57,7 +48,18 @@ public class TransferFragment extends PermissionsFragment {
     // UUID for bluetooth communications
     private static final UUID SERVICE_UUID =
             UUID.fromString("91a40d83-3af0-4cb0-a959-97c0d4f74aeb");
-    // Define callbacks for when we connect to the bluetooth device
+
+    // Parameters
+    private int mParamMoisture;
+    private String mParamSsid;
+    private String mParamPassword;
+
+    // Members
+    private BluetoothCentralManager central;
+    private Context mContext;
+
+
+    // BT Callbacks
     private final BluetoothPeripheralCallback peripheralCallback =
             new BluetoothPeripheralCallback() {
                 @Override
@@ -68,6 +70,7 @@ public class TransferFragment extends PermissionsFragment {
                         @NonNull GattStatus status) {
                     super.onCharacteristicUpdate(peripheral, value, characteristic, status);
                     // Callback for read operations. Results can be accessed here.
+                    String[] results = new String(value, StandardCharsets.UTF_8).split("!!!");
                 }
 
                 @Override
@@ -79,63 +82,33 @@ public class TransferFragment extends PermissionsFragment {
                     super.onCharacteristicWrite(peripheral, value, characteristic, status);
                     // Callback for write operations.
                 }
-    private String mParamMoisture;
-    private String mParamSsid;
-    private String mParamPassword;
 
-    BluetoothCentralManager central;
+                @Override
+                public void onServicesDiscovered(@NonNull BluetoothPeripheral peripheral) {
+                    super.onServicesDiscovered(peripheral);
+                    BluetoothGattService scoutingService = peripheral.getServices().get(0);
 
-    private final ActivityResultLauncher<String[]> requestBluetoothPermissionsLauncher =
-            registerForActivityResult(
-                    new RequestMultiplePermissions(), (isGranted) -> {
-                        if (!isGranted.containsValue(false)) {
-                            central.scanForPeripheralsWithServices(new UUID[] {serviceUuid});
-                        }
-                    }
-            );
-    private final BluetoothCentralManagerCallback bluetoothCentralManagerCallback = new BluetoothCentralManagerCallback() {
-        @Override
-        public void onDiscoveredPeripheral(
-                @NonNull BluetoothPeripheral peripheral, @NonNull ScanResult scanResult){
-            central.stopScan();
-            central.connectPeripheral(peripheral, peripheralCallback);
-        }
-    };
-    private final BluetoothPeripheralCallback peripheralCallback = new BluetoothPeripheralCallback() {
-        @Override
-        public void onCharacteristicUpdate(
-                @NonNull BluetoothPeripheral peripheral,
-                @NonNull byte[] value,
-                @NonNull BluetoothGattCharacteristic characteristic, @NonNull GattStatus status) {
-            super.onCharacteristicUpdate(peripheral, value, characteristic, status);
-            // Callback for read operations. Results can be accessed here.
-            String[] results = value.toString().split("!!!");
-        }
-        @Override
-        public void onCharacteristicWrite(
-                @NonNull BluetoothPeripheral peripheral,
-                @NonNull byte[] value,
-                @NonNull BluetoothGattCharacteristic characteristic, @NonNull GattStatus status) {
-            super.onCharacteristicWrite(peripheral, value, characteristic, status);
-            // Callback for write operations.
-        }
+                    BluetoothGattCharacteristic dataCharacteristic =
+                            scoutingService.getCharacteristics().get(0);
 
-        @Override
-        public void onServicesDiscovered(@NonNull BluetoothPeripheral peripheral) {
-            super.onServicesDiscovered(peripheral);
-            BluetoothGattService scoutingService = peripheral.getServices().get(0);
+                    byte[] dataToBeWritten =
+                            (mParamMoisture + "!!!" + mParamPassword + "!!!" + mParamSsid).getBytes(
+                                    StandardCharsets.UTF_8);
 
-            BluetoothGattCharacteristic dataCharacteristic = scoutingService.getCharacteristics().get(0);
+                    peripheral.writeCharacteristic(dataCharacteristic, dataToBeWritten,
+                            WITHOUT_RESPONSE);
+                }
+            };
+    private final BluetoothCentralManagerCallback bluetoothCentralManagerCallback =
+            new BluetoothCentralManagerCallback() {
+                @Override
+                public void onDiscoveredPeripheral(
+                        @NonNull BluetoothPeripheral peripheral, @NonNull ScanResult scanResult) {
+                    central.stopScan();
+                    central.connectPeripheral(peripheral, peripheralCallback);
+                }
+            };
 
-            byte[] dataToBeWritten = (mParamMoisture + "!!!" + mParamPassword + "!!!" + mParamSsid).getBytes();
-
-            peripheral.writeCharacteristic(dataCharacteristic, dataToBeWritten, WITHOUT_RESPONSE);
-        }
-    };
-
-    public TransferFragment() {
-        // Required empty public constructor
-    }
 
     /**
      * Use this factory method to create a new instance of
@@ -180,7 +153,11 @@ public class TransferFragment extends PermissionsFragment {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_transfer, container, false);
+        View v = inflater.inflate(R.layout.fragment_transfer, container, false);
+
+        Button scanButton = v.findViewById(R.id.transfer_btn_scan);
+        scanButton.setOnClickListener(this);
+        return v;
     }
 
 
@@ -202,6 +179,13 @@ public class TransferFragment extends PermissionsFragment {
 
     @Override
     protected void onPermissionsGranted() {
-        // scan(mContext);
+        central.scanForPeripheralsWithServices(new UUID[]{SERVICE_UUID});
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.transfer_btn_scan) {
+            checkPermissionsAndAct(mContext);
+        }
     }
 }
