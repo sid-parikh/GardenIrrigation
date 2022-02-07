@@ -10,7 +10,7 @@
             android:name="com.example.gardenirrigation.HomeFragment"
 
             android:label="Garden Irrigation"
-            tools:layout="@layout/fragment_home" >
+            tools:layout="@layout/fragment_home">
         <action
                 android:id="@+id/action_homeFragment_to_setupFragment"
                 app:destination="@id/setupFragment"
@@ -30,11 +30,25 @@
                 app:enterAnim="@android:anim/slide_in_left"
                 app:exitAnim="@android:anim/slide_out_right"
                 app:popEnterAnim="@android:anim/slide_out_right" />
+
     </fragment>
     <fragment
             android:id="@+id/transferFragment"
             android:name="com.example.gardenirrigation.TransferFragment"
-            tools:layout="@layout/fragment_transfer" />
+            tools:layout="@layout/fragment_transfer" >
+        <argument
+                android:name="password"
+                app:argType="string"
+                android:defaultValue="" />
+        <argument
+                android:name="ssid"
+                app:argType="string"
+                android:defaultValue="" />
+        <argument
+                android:name="moisture"
+                app:argType="int"
+                android:defaultValue="50" />
+    </fragment>
 
 
 </navigation>

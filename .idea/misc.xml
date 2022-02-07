@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/drawable/ic_baseline_arrow_forward_24.xml" value="0.335" />
         <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/fragment_setup.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/638722/AndroidStudioProjects/GardenIrrigationApp/app/src/main/res/layout/fragment_transfer.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/jjwri/Documents/GitHub/GardenIrrigationApp/app/src/main/res/layout/fragment_transfer.xml" value="0.19166666666666668" />

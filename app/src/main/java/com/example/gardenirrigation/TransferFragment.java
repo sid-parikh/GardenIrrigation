@@ -15,8 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.welie.blessed.BluetoothCentralManager;
@@ -114,19 +116,10 @@ public class TransferFragment extends PermissionsFragment implements View.OnClic
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param moistureLevel The moisture level to be transferred.
-     * @param wifiSsid      The ssid of the device to be connected to.
-     * @param wifiPassword  The password of the device to be connected to.
      * @return A new instance of fragment TransferFragment.
      */
-    public static TransferFragment newInstance(int moistureLevel, String wifiSsid, String wifiPassword) {
-        TransferFragment fragment = new TransferFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_PARAM_MOISTURE, moistureLevel);
-        args.putString(ARG_PARAM_SSID, wifiSsid);
-        args.putString(ARG_PARAM_PASSWORD, wifiPassword);
-        fragment.setArguments(args);
-        return fragment;
+    public static TransferFragment newInstance() {
+        return new TransferFragment();
     }
 
     @Override
@@ -137,15 +130,31 @@ public class TransferFragment extends PermissionsFragment implements View.OnClic
 
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParamMoisture = getArguments().getInt(ARG_PARAM_MOISTURE);
-            mParamSsid = getArguments().getString(ARG_PARAM_SSID);
-            mParamPassword = getArguments().getString(ARG_PARAM_PASSWORD);
-        }
+    public void onViewCreated(
+            @NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         central = new BluetoothCentralManager(mContext.getApplicationContext(),
                 bluetoothCentralManagerCallback, new Handler(Looper.getMainLooper()));
+
+        // Get TextView
+        TextView textView = view.findViewById(R.id.transfer_text_display);
+
+        // Get parameters
+        mParamSsid = TransferFragmentArgs.fromBundle(getArguments()).getSsid();
+        mParamPassword = TransferFragmentArgs.fromBundle(getArguments()).getPassword();
+        mParamMoisture = TransferFragmentArgs.fromBundle(getArguments()).getMoisture();
+
+        // Set TextView
+        String sb = "SSID: " + mParamSsid + "\n" +
+                    "PASSWORD: " + mParamPassword + "\n" +
+                    "MOISTURE: " + mParamMoisture + "\n";
+        textView.setText(sb);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -154,7 +163,6 @@ public class TransferFragment extends PermissionsFragment implements View.OnClic
             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_transfer, container, false);
-
         Button scanButton = v.findViewById(R.id.transfer_btn_scan);
         scanButton.setOnClickListener(this);
         return v;

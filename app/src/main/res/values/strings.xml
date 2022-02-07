@@ -36,5 +36,9 @@
     <string name="error_ssid_toolong">Wifi SSID is too long</string>
 
     <string name="scan">Scan</string>
+    <string name="setup_password_hint">WiFi Password</string>
+    <string name="error_password_missing">Wifi Password is Required</string>
+    <string name="error_password_toolong">Wifi Password is too long</string>
+    <string name="button_next">Next</string>
 
 </resources>

@@ -1,15 +1,10 @@
 package com.example.gardenirrigation;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +20,6 @@ import androidx.navigation.Navigation;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
-
-import com.welie.blessed.*;
 
 
 /**
@@ -50,6 +43,7 @@ public class SetupFragment extends PermissionsFragment {
      * The TextInputLayout for the WiFi SSID
      */
     private TextInputLayout mSsidInputLayout;
+    private TextInputLayout mPasswordInputLayout;
 
     public SetupFragment() {
         // Required empty public constructor
@@ -94,6 +88,8 @@ public class SetupFragment extends PermissionsFragment {
 
         // Get SSID text input layout
         mSsidInputLayout = v.findViewById(R.id.setup_input_ssid);
+        // Get Password text input layout
+        mPasswordInputLayout = v.findViewById(R.id.setup_input_password);
 
         // Get moisture text input layout
         mMoistureLevelInputLayout = v.findViewById(R.id.setup_input_moisture);
@@ -111,12 +107,34 @@ public class SetupFragment extends PermissionsFragment {
                 getString(R.string.error_moisture_required),
                 getString(R.string.error_moisture_notnumber),
                 getString(R.string.error_moisture_toolong))
-            && TextInputUtils.validateStringTextInput(mSsidInputLayout,
+            & TextInputUtils.validateStringTextInput(mSsidInputLayout,
                 getString(R.string.error_ssid_required),
-                getString(R.string.error_ssid_toolong))) {
+                getString(R.string.error_ssid_toolong))
+            & TextInputUtils.validateStringTextInput(mPasswordInputLayout,
+                getString(R.string.error_password_missing),
+                getString(R.string.error_password_toolong))) {
+
+            // Get the SSID and password
+            String ssid =
+                    Objects.requireNonNull(mSsidInputLayout.getEditText(), "No SSID Edit Text!")
+                           .getText()
+                           .toString();
+            String password = Objects.requireNonNull(mPasswordInputLayout.getEditText(),
+                    "No Password Edit Text!").getText().toString();
+            // Get the moisture level
+            int moistureLevel =
+                    Integer.parseInt(Objects.requireNonNull(mMoistureLevelInputLayout.getEditText(),
+                            "No Moisture Level Edit Text!").getText().toString());
+
+            // Send the data to the transfer fragment
+            SetupFragmentDirections.ActionSetupFragmentToTransferFragment action =
+                    SetupFragmentDirections.actionSetupFragmentToTransferFragment();
+            action.setSsid(ssid);
+            action.setPassword(password);
+            action.setMoisture(moistureLevel);
+
             // Navigate to the transfer fragment
-            Navigation.findNavController(view)
-                      .navigate(R.id.action_setupFragment_to_transferFragment);
+            Navigation.findNavController(view).navigate(action);
         } else {
             // Toast with error message
             Toast.makeText(getContext(), "Errors were found.", Toast.LENGTH_SHORT).show();
