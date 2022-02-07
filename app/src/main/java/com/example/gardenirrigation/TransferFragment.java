@@ -1,7 +1,6 @@
 package com.example.gardenirrigation;
 
-import static com.welie.blessed.WriteType.WITHOUT_RESPONSE;
-import static com.welie.blessed.WriteType.WITH_RESPONSE;
+import static com.example.gardenirrigation.Constants.*;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -9,30 +8,28 @@ import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions;
-import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import com.welie.blessed.BluetoothCentralManager;
 import com.welie.blessed.BluetoothPeripheralCallback;
+import static com.welie.blessed.WriteType.WITHOUT_RESPONSE;
 import com.welie.blessed.*;
 
 
@@ -43,8 +40,6 @@ import com.welie.blessed.*;
  */
 public class TransferFragment extends Fragment {
     private Context mContext;
-
-    UUID serviceUuid = UUID.fromString("91a40d83-3af0-4cb0-a959-97c0d4f74aeb");
 
     private static final String[] PERMISSIONS_BLUETOOTH =
             (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ?
@@ -74,7 +69,7 @@ public class TransferFragment extends Fragment {
             registerForActivityResult(
                     new RequestMultiplePermissions(), (isGranted) -> {
                         if (!isGranted.containsValue(false)) {
-                            central.scanForPeripheralsWithServices(new UUID[] {serviceUuid});
+                            central.scanForPeripheralsWithServices(new UUID[] {Service_UUID.getUuid()});
                         }
                     }
             );
@@ -94,7 +89,7 @@ public class TransferFragment extends Fragment {
                 @NonNull BluetoothGattCharacteristic characteristic, @NonNull GattStatus status) {
             super.onCharacteristicUpdate(peripheral, value, characteristic, status);
             // Callback for read operations. Results can be accessed here.
-            String[] results = value.toString().split("!!!");
+            String[] results = Arrays.toString(value).split("!!!");
         }
         @Override
         public void onCharacteristicWrite(
@@ -161,7 +156,7 @@ public class TransferFragment extends Fragment {
         }
 
         if (areAllPermissionsGranted) {
-            central.scanForPeripheralsWithServices(new UUID[] {serviceUuid});
+            central.scanForPeripheralsWithServices(new UUID[] {Service_UUID.getUuid()});
         } else {
             // Check if any rationales are needed
             boolean shouldShowRationale = false;
@@ -210,10 +205,25 @@ public class TransferFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_transfer, container, false);
+        View view = inflater.inflate(R.layout.fragment_transfer, container, false);
+
+        Button mScanButton = view.findViewById(R.id.transfer_scan_btn);
+        mScanButton.setOnClickListener(this::onScanButtonClick);
+
+        return view;
+    }
+
+    private void onScanButtonClick(View view) {
+        central.scanForPeripheralsWithServices(new UUID[] {Service_UUID.getUuid()});
     }
 }
