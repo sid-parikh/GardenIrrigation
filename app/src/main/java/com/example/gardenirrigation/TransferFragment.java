@@ -52,7 +52,7 @@ public class TransferFragment extends PermissionsFragment implements View.OnClic
             UUID.fromString("91a40d83-3af0-4cb0-a959-97c0d4f74aeb");
 
     // Parameters
-    private int mParamMoisture;
+    private @NonNull String mParamMoisture;
     private String mParamSsid;
     private String mParamPassword;
 

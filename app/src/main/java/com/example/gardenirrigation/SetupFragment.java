@@ -122,9 +122,9 @@ public class SetupFragment extends PermissionsFragment {
             String password = Objects.requireNonNull(mPasswordInputLayout.getEditText(),
                     "No Password Edit Text!").getText().toString();
             // Get the moisture level
-            int moistureLevel =
-                    Integer.parseInt(Objects.requireNonNull(mMoistureLevelInputLayout.getEditText(),
-                            "No Moisture Level Edit Text!").getText().toString());
+            String moistureLevel =
+                    Objects.requireNonNull(mMoistureLevelInputLayout.getEditText(),
+                            "No Moisture Level Edit Text!").getText().toString();
 
             // Send the data to the transfer fragment
             SetupFragmentDirections.ActionSetupFragmentToTransferFragment action =

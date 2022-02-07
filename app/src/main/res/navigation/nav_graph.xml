@@ -46,7 +46,7 @@
                 android:defaultValue="" />
         <argument
                 android:name="moisture"
-                app:argType="int"
+                app:argType="string"
                 android:defaultValue="50" />
     </fragment>
 
